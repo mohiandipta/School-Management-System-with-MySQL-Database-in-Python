@@ -428,13 +428,16 @@ class School:
 
     def add_student(self):
         if self.StudentID.get() == "" or self.Firstname.get() == "" or self.Surname.get() == "":
-            tkinter.messagebox.showerror("Enter coorect student details")
+            tkinter.messagebox.showerror(
+                "School Management System", "Enter correct student details")
         else:
             sqlCon = pymysql.connect(
                 host="localhost", user="root", password="mohi123", database="schooldb")
-            cur = sqlCon.cursor()
-            cur.execute(
-                "inser into schooldb values""(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (
+            cursor = sqlCon.cursor()
+            cursor.execute(
+                "insert into schooldb values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    self.StudentID.get(),
                     self.Firstname.get(),
                     self.Surname.get(),
                     self.NINumber.get(),
@@ -446,7 +449,7 @@ class School:
                 ))
             sqlCon.commit()
             sqlCon.close()
-            tkinter.messagebox.askyesno("SMS", "Record Entered Successfully")
+            tkinter.messagebox.showinfo("SMS", "Record Entered Successfully")
 
     def Reset(self):
         self.StudentID.set("")
