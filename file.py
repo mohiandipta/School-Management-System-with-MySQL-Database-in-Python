@@ -225,6 +225,7 @@ class School:
         self.student_records.column("email", width=150)
 
         self.student_records.pack(fill=BOTH, expand=1)
+        self.view_data()
 
         # =============Subject-Part-1=============
 
@@ -365,7 +366,7 @@ class School:
             'arial', 12, 'bold'), bd=5, width=29, textvariable=self.pgFirstname)
         self.txtFirstName.grid(row=1, column=1)
 
-        # sureName
+        # surName
         self.lblSureName = Label(GuidanceFrame, font=(
             'arial', 12, 'bold'), text="Sure Name", bd=7)
         self.lblSureName.grid(row=2, column=0, sticky=W, padx=5, pady=5)
@@ -449,7 +450,21 @@ class School:
                 ))
             sqlCon.commit()
             sqlCon.close()
+            self.view_data()
             tkinter.messagebox.showinfo("SMS", "Record Entered Successfully")
+
+    def view_data(self):
+        sqlCon = pymysql.connect(
+            host="localhost", user="root", password="mohi123", database="schooldb")
+        cursor = sqlCon.cursor()
+        cursor.execute("select * from schooldb")
+        rows = cursor.fetchall()
+        if len(rows) != 0:
+            self.student_records.delete(*self.student_records.get_children())
+            for row in rows:
+                self.student_records.insert('', END, values=row)
+                sqlCon.commit()
+                cursor.close()
 
     def Reset(self):
         self.StudentID.set("")
