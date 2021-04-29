@@ -404,7 +404,7 @@ class School:
 
         # =============Buttons=============
 
-        self.btnAddNew = Button(ButtonsFrame, width=9, height=2, text='Add New', pady=1, padx=24, bd=4, font=(
+        self.btnAddNew = Button(ButtonsFrame, width=9, height=2, text='Add New', command=self.add_student, pady=1, padx=24, bd=4, font=(
             'arial', 12, 'bold'))
         self.btnAddNew.grid(row=0, column=0)
 
@@ -425,6 +425,28 @@ class School:
         self.btnExit.grid(row=4, column=0)
 
     # =============Functions=============
+
+    def add_student(self):
+        if self.StudentID.get() == "" or self.Firstname.get() == "" or self.Surname.get() == "":
+            tkinter.messagebox.showerror("Enter coorect student details")
+        else:
+            sqlCon = pymysql.connect(
+                host="localhost", user="root", password="mohi123", database="schooldb")
+            cur = sqlCon.cursor()
+            cur.execute(
+                "inser into schooldb values""(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (
+                    self.Firstname.get(),
+                    self.Surname.get(),
+                    self.NINumber.get(),
+                    self.Address.get(),
+                    self.Gender.get(),
+                    self.DOB.get(),
+                    self.Mobile.get(),
+                    self.Email.get()
+                ))
+            sqlCon.commit()
+            sqlCon.close()
+            tkinter.messagebox.askyesno("SMS", "Record Entered Successfully")
 
     def Reset(self):
         self.StudentID.set("")
