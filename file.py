@@ -22,11 +22,11 @@ class School:
         Outterframe.grid(row=0, column=0)
 
         InnerMostframe = Frame(Outterframe, bd=5, width=600,
-                               height=300, bg='blue', relief=RIDGE)
+                               height=300, bg='cadet blue', relief=RIDGE)
         InnerMostframe.grid(row=0, column=0)
 
         Innerframe = Frame(Outterframe, bd=5, width=700,
-                           height=100, bg='blue', relief=RIDGE)
+                           height=100, bg='cadet blue', relief=RIDGE)
         Innerframe.grid(row=0, column=1)
 
         BottomInnerframe = Frame(Mainframe, bd=7, width=1340,
@@ -225,7 +225,8 @@ class School:
         self.student_records.column("email", width=150)
 
         self.student_records.pack(fill=BOTH, expand=1)
-        self.view_data()
+        self.student_records.bind("<ButtonRelease-1>", self.LearnersInfo)
+        self.View_data()
 
         # =============Subject-Part-1=============
 
@@ -405,11 +406,11 @@ class School:
 
         # =============Buttons=============
 
-        self.btnAddNew = Button(ButtonsFrame, width=9, height=2, text='Add New', command=self.add_student, pady=1, padx=24, bd=4, font=(
+        self.btnAddNew = Button(ButtonsFrame, width=9, height=2, text='Add New', command=self.Add_student, pady=1, padx=24, bd=4, font=(
             'arial', 12, 'bold'))
         self.btnAddNew.grid(row=0, column=0)
 
-        self.btnUpdate = Button(ButtonsFrame, width=9, height=2, text='Update', pady=1, padx=24, bd=4, font=(
+        self.btnUpdate = Button(ButtonsFrame, width=9, height=2, text='Update', command=self.UpdateData, pady=1, padx=24, bd=4, font=(
             'arial', 12, 'bold'))
         self.btnUpdate.grid(row=1, column=0)
 
@@ -417,7 +418,7 @@ class School:
             'arial', 12, 'bold'))
         self.btnReset.grid(row=2, column=0)
 
-        self.btnDelete = Button(ButtonsFrame, width=9, height=2, text='Delete', pady=1, padx=24, bd=4, font=(
+        self.btnDelete = Button(ButtonsFrame, width=9, height=2, text='Delete', command=self.Delete, pady=1, padx=24, bd=4, font=(
             'arial', 12, 'bold'))
         self.btnDelete.grid(row=3, column=0)
 
@@ -427,7 +428,8 @@ class School:
 
     # =============Functions=============
 
-    def add_student(self):
+    # add_new
+    def Add_student(self):
         if self.StudentID.get() == "" or self.Firstname.get() == "" or self.Surname.get() == "":
             tkinter.messagebox.showerror(
                 "School Management System", "Enter correct student details")
@@ -450,10 +452,11 @@ class School:
                 ))
             sqlCon.commit()
             sqlCon.close()
-            self.view_data()
+            self.View_data()
             tkinter.messagebox.showinfo("SMS", "Record Entered Successfully")
 
-    def view_data(self):
+    # view_data_from_sql
+    def View_data(self):
         sqlCon = pymysql.connect(
             host="localhost", user="root", password="mohi123", database="schooldb")
         cursor = sqlCon.cursor()
@@ -466,6 +469,62 @@ class School:
                 sqlCon.commit()
                 cursor.close()
 
+    # showing data from table to the student_record feild for update again
+    def LearnersInfo(self, event):
+        viewInfo = self.student_records.focus()
+        learnerData = self.student_records.item(viewInfo)
+        row = learnerData['values']
+        self.StudentID.set(row[0])
+        self.Firstname.set(row[1])
+        self.Surname.set(row[2])
+        self.NINumber.set(row[3])
+        self.Address.set(row[4])
+        self.Gender.set(row[5])
+        self.DOB.set(row[6])
+        self.Mobile.set(row[7])
+        self.Email.set(row[8])
+
+    # updating existing record
+    def UpdateData(self):
+        sqlCon = pymysql.connect(
+            host="localhost", user="root", password="mohi123", database="schooldb")
+        cursor = sqlCon.cursor()
+        cursor.execute(
+            "Update schooldb set firstname=%s, surname=%s, ninubmer=%s, addrress=%s, gender=%s, dob=%s, mobile=%s, email=%s where stdid=%s",
+            (
+                self.Firstname.get(),
+                self.Surname.get(),
+                self.NINumber.get(),
+                self.Address.get(),
+                self.Gender.get(),
+                self.DOB.get(),
+                self.Mobile.get(),
+                self.Email.get(),
+                self.StudentID.get()
+            ))
+
+        sqlCon.commit()
+        self.View_data()
+        sqlCon.close()
+        self.Reset()
+        tkinter.messagebox.showinfo(
+            "School Management System", "Record Successfully Updated")
+
+    def Delete(self):
+        sqlCon = pymysql.connect(
+            host="localhost", user="root", password="mohi123", database="schooldb")
+        cursor = sqlCon.cursor()
+        cursor.execute(
+            "delete from schooldb where stdid=%s", self.StudentID.get())
+
+        sqlCon.commit()
+        self.View_data()
+        sqlCon.close()
+        self.Reset()
+        tkinter.messagebox.showinfo(
+            "School Management System", "Record Successfully Deleted")
+
+        # reset
     def Reset(self):
         self.StudentID.set("")
         self.Firstname.set("")
